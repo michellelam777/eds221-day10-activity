@@ -1,0 +1,57 @@
+---
+title: "Long Term Ice Cover Duration"
+author: "Michelle Lam"
+date: "2022-08-19"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(here)
+library(naniar)
+```
+
+
+```{r}
+ice_duration <- read_csv(here("data", "ntl33_v7.csv"), na ="-999")
+
+daily_meteor <- read_csv(here("data", "ntl20_v6.csv"))
+```
+
+```{r}
+ice_duration |> 
+  ggplot(aes(y = ice_duration, x = lakeid)) +
+  geom_jitter(aes(color = lakeid)) +
+  geom_boxplot(fill = NA)
+
+
+ice_duration_mean <- ice_duration |> 
+  group_by(year4) |> 
+  summarize(mean_duration = round(mean(ice_duration, na.rm = TRUE),0))
+
+ggplot(data = ice_duration_mean, aes(x = year4, y = mean_duration)) +
+  geom_line() +
+  labs(caption = "In general, the mean duration of ice cover has decreased over the years.")
+```
+
+```{r}
+air_temp <- daily_meteor |>
+  filter(month %in% c(12, 1, 2)) |> 
+  group_by(year4) |> 
+  summarize(mean_air_temp = round(mean(ave_air_temp_adjusted),1))
+
+ggplot(data = air_temp, aes(x = year4, y = mean_air_temp)) +
+  geom_line() +
+  labs(caption = "In general, the mean air temperature increases over the years.")
+```
+
+```{r}
+combined_air_duration <- full_join(ice_duration_mean, air_temp)
+
+ggplot(data = combined_air_duration, aes(x = mean_air_temp, y = mean_duration)) +
+  geom_point() +
+  labs(caption = "In general, as mean air temp increases the mean duration of ice cover decreases.")
+```
+

@@ -55,3 +55,14 @@ ggplot(data = combined_air_duration, aes(x = mean_air_temp, y = mean_duration)) 
   labs(caption = "In general, as mean air temp increases the mean duration of ice cover decreases.")
 ```
 
+```{r}
+ice_duration_1970 <- ice_duration |> 
+  filter(year4 >= 1970) |> 
+  mutate(ice_off = lubridate::mdy(ice_off)) |>
+  mutate(day_ice_off = lubridate::yday(ice_off))
+
+ggplot(data = ice_duration_1970, aes(x = year4, y = day_ice_off)) +
+  geom_point() +
+  labs(caption = "It looks like as of recent years the day that ice is thawed happens earlier in the year.")
+```
+
